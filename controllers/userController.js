@@ -57,4 +57,63 @@ router.post("/user/registration", (req, res) => {
     })
 })
 
+//LOGIN
+
+router.post("/login", (req, res) => {
+
+    const penname = req.body.penname;
+
+
+
+    UserSchema.findOne({ penname: penname }).then(
+
+        (data) => {
+
+            // if penname is present
+
+            if (data === null) {
+
+                return res.json({ "message": "Invalid !" })
+
+            }
+
+            // getting userpassword
+
+            const password = req.body.password;
+
+            bcryptjs.compare(password, data.password, (error, result) => {
+
+                // if result is false invalid password
+
+                if (!result) {
+
+                    console.log("Invalid Password");
+
+                    return res.json({ "message": "Invalid credentials !" })
+
+                }
+
+
+
+                //else token generate
+
+                console.log("Login Success");
+
+                const token = jwt.sign({ userID: data._id, isAdmin: data.isAdmin, isSuperUser: data.isSuperUser }, "anysecretkey");
+
+
+
+                res.json({ "message": "Login Success", 'token': token, status: true, 'penname': penname, 'isAdmin': data.isAdmin, 'uid': data._id, 'pp': data.profilePic });
+
+            })
+
+
+
+
+        }
+
+    )
+
+})
+
 module.exports = router;
