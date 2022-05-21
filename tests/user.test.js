@@ -25,12 +25,12 @@ describe('User Schema test anything', () => {
     // user registration
     it('Registering user', async () => {
         const user = {
-            'penname': 'hiralaal142',
-            'email': 'herohirae244kdhhfjd3o@gmail.com',
-            'password': "Nepal@123"
+            'penname': 'Dhiraj234',
+            'email': 'dhirw@gmail.com',
+            'password': "Asdf@1234"
         };
         const data = await UserSchema.create(user);
-        expect(data.penname).toEqual('hiralaal142');
+        expect(data.penname).toEqual('Dhiraj234');
     });
 
    
