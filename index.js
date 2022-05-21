@@ -1,11 +1,13 @@
 const express = require('express')
 const app = express();
 const UserController = require("./controllers/userController")
-
+const BookController = require("./controllers/bookController")
 
 // database connection
 require("./models/connection")
 
+// for displaying uploaded images
+app.use(express.static(__dirname+'/images'));
 // cors
 const cors= require('cors');
 app.use(cors());
@@ -20,6 +22,7 @@ app.get('/', (req,res)=>{
 
 //router
 app.use("/api/users", UserController)
+app.use("/api/books", BookController)
 
 
 // port config
