@@ -57,11 +57,11 @@ var UserSchema = new mongoose.Schema({
     },
     isPublisher: {
         type: Boolean,
-        default: true,
+        default: false,
     },
     isWriter: {
         type: Boolean,
-        default: true,
+        default: false,
     },
 
     isAdmin: {

@@ -1,0 +1,127 @@
+const express = require("express");
+const mongoose = require('mongoose');
+const router = express.Router();
+const bcryptjs = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const upload = require("../uploads/files")
+const auth = require("../middlewares/auth");
+const BookSchema = require("../models/book.model");
+
+
+
+// get books
+router.get("/", (req, res) => {
+    BookSchema.find().sort([['createdDate', -1]]).then((docs) => {
+            res.json({ 'data': docs,'status': true  })
+     
+    }).catch(e => {
+        res.json({ 'msg': 'Error', 'status': false })
+    })
+});
+
+// search destinations
+router.get("/search/:query", (req, res) => {
+    const gquery = req.params.query
+    const regex = new RegExp(escapeRegex(gquery), 'gi');
+
+    BookSchema.find({$or:[{'bookName':regex}, {'category':regex},{'bookWriter':regex},{'publication':regex},{'isbn':regex} ], $and:[{approved:true}]},(err, docs) => {
+        console.log('these are the data',docs, req.params.query)
+       
+            res.json({ 'data': docs, success:true })
+        
+    // }).catch(e=>{
+    //     res.json({ 'message': 'Error', success:false, query:req.params.query })
+
+    })
+});
+
+// for search and Prevention for DDos Attack
+function escapeRegex(text) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+};
+
+
+
+
+
+// get books by individual users
+router.get("/added-books/:uid",auth.verifyUser, (req, res) => {
+    const user = req.params.uid;
+    BookSchema.find({requestedBy:user}).sort([['createdDate', -1]]).then((docs) => {
+            res.json({ 'data': docs })
+     
+    }).catch(e => {
+        res.json({ 'msg': 'Error', 'success': false })
+    })
+});
+
+
+// post book publication
+router.post("/add", auth.verifyUser, upload.single('bookCover'), (req, res) => {
+    // uploading bookcover
+    var bookcover = ''
+    if (req.file == undefined) {
+        bookcover = 'no.jpg'
+
+    } else {
+        bookcover = req.file.filename;
+    }
+
+    const user = req.userInfo._id;
+    const bookName = req.body.bookName;
+    const bookWriter = req.body.bookWriter;
+    const price = req.body.price;
+    const category = req.body.category;
+    const isbn = req.body.isbn;
+    const publishedDate = req.body.publishedDate;
+    const abstract = req.body.abstract;
+    const book = new BookSchema({
+        requestedBy: user,
+        bookName: bookName,
+        bookWriter: bookWriter,
+        price: price,
+        category: category,
+        isbn: isbn,
+        publishedDate: publishedDate,
+        abstract: abstract,
+        bookCover:bookcover
+
+    });
+    book.save((err, doc) => {
+        if (!err) {
+            res.json({ message: "Sucessful", status: true })
+        }
+        else {
+            res.json({ message: err, status: false })
+
+        }
+    });
+
+
+})
+
+// book vefify
+router.put("/verify", auth.verifyAdmin, (req, res) => {
+    // uploading bookcover
+    
+    const bookId = req.body.bookid;
+    const approved = req.body.approved
+    BookSchema.updateOne({_id:bookId},{
+        approved:approved
+
+    }).then((err) => {
+     
+        res.json({ "message": "Update Successful!", status: true })
+    }
+
+    ).catch((e) => {
+
+        res.json({ "message": "Went wrong!", status: false })
+    })
+
+
+})
+
+
+
+module.exports = router;
