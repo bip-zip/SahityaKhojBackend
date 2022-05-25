@@ -3,6 +3,7 @@ const app = express();
 const UserController = require("./controllers/userController")
 const BookController = require("./controllers/bookController")
 const PublicationController = require("./controllers/publicationController")
+const FeedController = require("./controllers/feedController")
 
 
 
@@ -34,6 +35,7 @@ app.get('/', (req,res)=>{
 app.use("/api/users", UserController)
 app.use("/api/books", BookController)
 app.use("/api/publications", PublicationController)
+app.use("/api/feeds", FeedController)
 
 
 

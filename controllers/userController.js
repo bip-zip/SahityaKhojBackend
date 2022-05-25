@@ -37,7 +37,7 @@ router.post("/user/registration", (req, res) => {
             const email = req.body.email;
             const contact = '+977 ';
             // const joined = req.body.joined;
-            const pp = 'pp.jpg';
+            const pp = 'pp.png';
             const cp = 'cp.jpg';
             const bio = 'Sahitya lai khojeko maile...';
 
