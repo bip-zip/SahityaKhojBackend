@@ -7,10 +7,6 @@ const jwt = require("jsonwebtoken");
 const upload = require("../uploads/files")
 const auth = require("../middlewares/auth");
 
-
-
-
-
 // POST request (User Registration)
 router.post("/user/registration", (req, res) => {
     const penname = req.body.penname
@@ -37,7 +33,7 @@ router.post("/user/registration", (req, res) => {
             const email = req.body.email;
             const contact = '+977 ';
             // const joined = req.body.joined;
-            const pp = 'pp.jpg';
+            const pp = 'pp.png';
             const cp = 'cp.jpg';
             const bio = 'Sahitya lai khojeko maile...';
 
@@ -93,7 +89,7 @@ router.post("/login", (req, res) => {
                 console.log("Login Success");
                 const token = jwt.sign({ userID: data._id, isAdmin: data.isAdmin, isSuperUser: data.isSuperUser }, "anysecretkey");
 
-                res.json({ "message": "Login Success", 'token': token, status: true, 'penname': penname, 'isAdmin': data.isAdmin, 'isPublisher': data.isPublisher, 'uid': data._id, 'pp': data.profilePic });
+                res.json({ "message": "Login Success", 'token': token, status: true, 'penname': penname, 'isAdmin': data.isAdmin, 'isPublisher': data.isPublisher, 'uid': data._id, 'isWriter':data.isWriter, 'pp': data.profilePic });
             })
 
 
@@ -153,9 +149,12 @@ router.get("/info", auth.verifyUser, (req, res) => {
     UserSchema.findOne({
         _id: req.userInfo._id
     })
-        .populate("followers", "_id username firstname lastname profilePic")
+        .populate("followers", "_id username firstname lastname profilePic profileVisit")
         .populate("following", "_id username firstname lastname profilePic").then((docs) => {
             // console.log('followers, following', docs.followers.length)
+            // console.log('here it is ', docs.profileVisit)
+            profileVisitInc(req.userInfo._id,docs.profileVisit);
+
             res.json({ 'data': docs, 'followers': docs.followers.length, 'following': docs.following.length, success: true })
 
         }).catch(e => {
@@ -163,6 +162,18 @@ router.get("/info", auth.verifyUser, (req, res) => {
 
         })
 })
+
+function profileVisitInc(uid,pv){
+
+    UserSchema.updateOne({_id:uid},{
+        profileVisit:pv+1
+    }).then(e=>{
+        return true
+    }).catch(e=>{
+        return false
+    })
+
+}
 
 // GET  specific  user info
 router.get("/info/:uid", auth.verifyUser, (req, res) => {
@@ -173,6 +184,7 @@ router.get("/info/:uid", auth.verifyUser, (req, res) => {
         .populate("following", "_id username firstname lastname profilePic")
         .then((docs) => {
             console.log('here it is ', docs)
+            // profileVisitInc(req.params.uid,docs.profileVisit);
             res.json({ 'data': docs, success: true })
         }).catch(e => {
             console.log(e)

@@ -1,7 +1,9 @@
 const express = require('express')
 const app = express();
 const UserController = require("./controllers/userController")
+const FeedController = require("./controllers/feedController")
 const BookController = require("./controllers/bookController")
+const WriterController = require("./controllers/writerController")
 const PublicationController = require("./controllers/publicationController")
 
 
@@ -34,10 +36,8 @@ app.get('/', (req,res)=>{
 app.use("/api/users", UserController)
 app.use("/api/books", BookController)
 app.use("/api/publications", PublicationController)
-
-
-
-
+app.use("/api/feeds", FeedController)
+app.use("/api/writers", WriterController)
 
 
 

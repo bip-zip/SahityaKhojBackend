@@ -49,14 +49,3 @@ var PublicationSchema = new mongoose.Schema({
 
 const Publication = mongoose.model("publication", PublicationSchema);
 module.exports = Publication;
-
-
-
-
-
-
-
-
-
-
-

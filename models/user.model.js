@@ -86,20 +86,10 @@ var UserSchema = new mongoose.Schema({
     followers: [{ type: mongoose.Schema.ObjectId, ref: 'user' }],
 
     profileVisit:{
-        type:String
+        type:Number,
+        default:'1'
     }
 });
 
 const User = mongoose.model("user", UserSchema);
 module.exports = User;
-
-
-
-
-
-
-
-
-
-
-
