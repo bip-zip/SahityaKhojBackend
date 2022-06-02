@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
     })
 });
 
-// search destinations
+// search books
 router.get("/search/:query", (req, res) => {
     const gquery = req.params.query
     const regex = new RegExp(escapeRegex(gquery), 'gi');
@@ -121,6 +121,105 @@ router.put("/verify", auth.verifyAdmin, (req, res) => {
 
 
 })
+
+
+// post book publication
+router.post("/add-releasing", auth.verifyUser, upload.single('bookCover'), (req, res) => {
+    // uploading bookcover
+    var bookcover = ''
+    if (req.file == undefined) {
+        bookcover = 'no.jpg'
+
+    } else {
+        bookcover = req.file.filename;
+    }
+
+    const user = req.userInfo._id;
+    const bookName = req.body.bookName;
+    const bookWriter = req.body.bookWriter;
+    const category = req.body.category;
+    const releasingDate = req.body.releasingDate;
+    const isReleasing= true;
+
+    const book = new BookSchema({
+        requestedBy: user,
+        bookName: bookName,
+        bookWriter: bookWriter,
+        releasingDate: releasingDate,
+        category: category,
+        isReleasing: isReleasing,
+        bookCover:bookcover
+    });
+    book.save((err, doc) => {
+        if (!err) {
+            res.json({ message: "Sucessful", status: true })
+        }
+        else {
+            res.json({ message: err, status: false })
+
+        }
+    });
+})
+
+// feeds of release user
+router.get("/ind-release/:uid",auth.verifyUser, (req, res) => {
+    const _user = req.params.uid;
+    BookSchema.find({requestedBy:_user, isReleasing:true})
+        .populate("requestedBy", "_id penname firstname lastname profilePic")
+        .populate("Comments.PostedBy", "_id firstname lastname profilePic")
+        .sort([['date', -1]])
+        .then((docs) => {
+            let release = [];
+            docs.map((item) => {
+                release.push({
+                    _id: item._id,
+                    bookName: item.bookName,
+                    bookWriter: item.bookWriter,
+                    category: item.category,
+                    releasingDate: item.releasingDate,
+                    bookCover: item.bookCover,
+                    Shares: item.Shares,
+                    Likes: item.Likes,
+                    Comments: item.Comments,
+                    user:item.requestedBy
+                });
+            });
+
+            res.json({ 'data': release, 'success': true })
+        }).catch(e => {
+            res.json({ 'msg': 'Error', 'success': false })
+        })
+});
+
+// feeds of release user
+router.get("/releases", (req, res) => {
+    BookSchema.find({isReleasing:true})
+        .populate("requestedBy", "_id penname firstname lastname profilePic")
+        .populate("Comments.PostedBy", "_id firstname lastname profilePic")
+        .sort([['date', -1]])
+        .then((docs) => {
+            let release = [];
+            docs.map((item) => {
+                release.push({
+                    _id: item._id,
+                    bookName: item.bookName,
+                    bookWriter: item.bookWriter,
+                    category: item.category,
+                    releasingDate: item.releasingDate,
+                    bookCover: item.bookCover,
+                    Shares: item.Shares,
+                    Likes: item.Likes,
+                    Comments: item.Comments,
+                    user:item.requestedBy
+                });
+            });
+
+            res.json({ 'data': release, 'success': true })
+        }).catch(e => {
+            res.json({ 'msg': 'Error', 'success': false })
+        })
+});
+
 
 
 

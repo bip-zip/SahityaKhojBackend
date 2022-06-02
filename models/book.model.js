@@ -73,7 +73,34 @@ var BookSchema = new mongoose.Schema({
     },
     adminSeen:{
         type:Boolean
-    }
+    },
+    isReleasing:{
+        type:Boolean,
+        default:true
+    },
+    releasingDate:{
+        type:Date
+    },
+    Shares: [{
+        type: mongoose.Schema.Types.ObjectId, ref: "user"
+    }],
+    Likes: [{
+        type: mongoose.Schema.Types.ObjectId, ref: "user"
+    }],
+    Comments: [
+        {
+            Text: String,
+            PostedBy: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "user",
+            },
+            date: {
+                type: Date,
+                default: Date.now,
+            },
+        },
+    ],
+
 
 
 });

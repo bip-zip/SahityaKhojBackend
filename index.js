@@ -4,6 +4,7 @@ const UserController = require("./controllers/userController")
 const FeedController = require("./controllers/feedController")
 const BookController = require("./controllers/bookController")
 const WriterController = require("./controllers/writerController")
+const AdsController = require("./controllers/adsController")
 const PublicationController = require("./controllers/publicationController")
 
 
@@ -38,6 +39,7 @@ app.use("/api/books", BookController)
 app.use("/api/publications", PublicationController)
 app.use("/api/feeds", FeedController)
 app.use("/api/writers", WriterController)
+app.use("/api/ads", AdsController)
 
 
 

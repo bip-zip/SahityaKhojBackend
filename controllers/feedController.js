@@ -8,7 +8,7 @@ const upload = require("../uploads/files")
 router.get("/", (req, res) => {
     FeedSchema.find()
         .populate("user", "_id penname firstname lastname profilePic")
-        .populate("Comments.PostedBy", "_id firstname lastname profilePic")
+        .populate("Comments.PostedBy", "_id penname firstname lastname profilePic")
         .sort([['date', -1]])
         .then((docs) => {
             let feeds = [];
@@ -228,44 +228,20 @@ router.put('/update', auth.verifyUser, upload.single('thumbnail'), (req, res) =>
 
 // posting comments
 router.post('/comment', auth.verifyUser, (req, res) => {
-
     const comment = { Text: req.body.commentText, PostedBy: req.userInfo._id };
-    console.log(comment, req.body.blogId)
-
-    BlogSchema.findByIdAndUpdate(
-        req.body.blogId,
+    FeedSchema.findByIdAndUpdate(
+        req.body.feedId,
         {
             $push: { Comments: comment },
-        }
-    )
-        // .populate("Comments.PostedBy", "_id Name")
-        // .populate("PostedBy", "_id Name")
+        })
         .then((docs) => {
-            console.log('posted comment')
+            console.log('Comment Posted')
             res.json({ success: true, commentcount: docs.Comments.length })
-
-
-
-            // res.json({
-            // 	_id: result._id,
-            // 	Title: result.Title,
-            // 	Body: result.Body,
-            // 	PostedBy: result.PostedBy,
-            // 	Photo: result.Photo.toString("base64"),
-            // 	PhotoType: result.PhotoType,
-            // 	Likes: result.Likes,
-            // 	Comments: result.Comments,
-            // });
 
         }).catch(e => {
             res.json({ message: e, success: false })
 
         });
-
-
-
-
-
 })
 
 

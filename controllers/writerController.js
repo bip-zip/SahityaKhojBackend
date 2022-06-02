@@ -124,6 +124,16 @@ function profileVisitInc(uid,pv){
 
 }
 
+function profileSync(user, pp){
+    UserSchema.updateOne({ _id: user }, {
+        profilePic: pp
+        
+    }).then(()=>{
+        return true
+    })
+
+}
+
 // update writer details
 router.put('/update', upload.single('profilePic'), auth.verifyUser, (req, res) => {
 
@@ -155,6 +165,7 @@ router.put('/update', upload.single('profilePic'), auth.verifyUser, (req, res) =
         const profilePic = req.file.filename
         WriterSchema.updateOne({ requestedBy: user }, { penname: penname, contact: contact, email: email, education:education, birthPlace:birthPlace, dob:dob, profilePic:profilePic }).then(result => {
             //    console.log("picuploaded")
+            profileSync(user,profilePic)
             res.json({ "message": "Update Successful!", success: true })
         }).catch(e => {
             res.json({ "message": "Update error!", success: false })
