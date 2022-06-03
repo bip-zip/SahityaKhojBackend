@@ -47,7 +47,7 @@ function escapeRegex(text) {
 // get books by individual users
 router.get("/added-books/:uid",auth.verifyUser, (req, res) => {
     const user = req.params.uid;
-    BookSchema.find({requestedBy:user}).sort([['createdDate', -1]]).then((docs) => {
+    BookSchema.find({requestedBy:user,approved:true}).sort([['createdDate', -1]]).then((docs) => {
             res.json({ 'data': docs })
      
     }).catch(e => {

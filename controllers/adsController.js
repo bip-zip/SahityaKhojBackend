@@ -18,6 +18,16 @@ router.get("/", (req, res) => {
     })
 });
 
+// get verified ads
+router.get("/verified-ads", (req, res) => {
+    AdsSchema.find({approved:true}).sort([['createdDate', -1]]).then((docs) => {
+            res.json({ 'data': docs,'status': true  })
+     
+    }).catch(e => {
+        res.json({ 'msg': 'Error', 'status': false })
+    })
+});
+
 
 // post book publication
 router.post("/add", auth.verifyUser, upload.single('picture'), (req, res) => {
@@ -53,6 +63,29 @@ router.post("/add", auth.verifyUser, upload.single('picture'), (req, res) => {
 
 
 })
+
+// Ads verify
+router.put("/verify", auth.verifyAdmin, (req, res) => {
+    const adId = req.body.adsId;
+    const approved = req.body.approved
+    console.log(approved)
+
+    AdsSchema.updateOne({ _id: adId }, {
+        approved: approved
+    }).then((docs) => {
+       
+        res.json({ "message": "Success!", status: true })
+    }).catch((e) => {
+
+        res.json({ "message": "Went wrong!", status: false })
+    })
+
+})
+
+
+
+
+
 
 
 
