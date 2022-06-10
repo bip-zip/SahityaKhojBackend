@@ -217,60 +217,114 @@ router.get("/uinfo/:uid", auth.verifyUser, (req, res) => {
 
 
 // update user profile
-router.put("/updateprofile", auth.verifyUser, upload.fields([{ name: 'pp', maxCount: 1 }, { name: 'cp', maxCount: 1 }]), (req, res) => {
-    // console.log(req.files.pp[0].filename)
+// GET  specific  user info
+
+router.get("/user-info", auth.verifyUser, (req, res) => {
+
+    const uid = req.userInfo._id
+
+    UserSchema.findOne({
+
+        _id:uid
+
+    })
+
+        .then((docs) => {
+
+            console.log('here it is ', docs)
+
+            res.json({ 'data': docs, success: true })
+
+        }).catch(e => {
+
+            console.log(e)
+
+            res.json({ 'message': 'Error', success: false })
+
+
+
+        })
+
+
+
+
+})
+
+
+
+
+
+
+
+// update user profile
+
+router.put("/editprofile", auth.verifyUser, upload.single('profilePic'), (req, res) => {
+
+
 
     console.log('i am here')
+
     const __id = req.userInfo._id;
+
     const firstname = req.body.firstname
+
     const lastname = req.body.lastname
-    const email = req.body.email
+
     const contact = req.body.contact
+
     const bio = req.body.bio
 
+
+
     var profilePic;
-    var coverPic;
-    if (req.files.pp == undefined && req.files.cp == undefined) {
+
+    if (req.file == undefined) {
+
         profilePic = req.userInfo.profilePic
-        coverPic = req.userInfo.coverPic
+
     }
-    else if (req.files.cp == undefined && req.files.pp != undefined) {
-        profilePic = req.files.pp[0].filename
-        coverPic = req.userInfo.coverPic
-    }
-    else if (req.files.pp == undefined && req.files.cp != undefined) {
-        coverPic = req.files.cp[0].filename
-        profilePic = req.userInfo.profilePic
-    }
+
+   
+
     else {
-        profilePic = req.files.pp[0].filename
-        coverPic = req.files.cp[0].filename
+
+        profilePic = req.file.filename
+
     }
 
 
 
     UserSchema.updateOne({ _id: __id }, {
+
         firstname: firstname,
+
         lastname: lastname,
-        email: email,
+
+        // email: email,
+
         contact: contact,
+
         bio: bio,
-        coverPic: coverPic,
+
         profilePic: profilePic
+
     }).then((err) => {
+
         console.log('Update successful')
+
         res.json({ "message": "Update Successful!", status: true })
+
     }
 
+
+
     ).catch((e) => {
+
         console.log('Update not successful')
+
         res.json({ "message": "Went wrong!", status: false })
+
     })
-
-
-
-
-
 
 
 
@@ -443,6 +497,7 @@ router.delete("/delete/:uid", auth.verifySuperUser, (req, res) => {
 
 
 //UPDATE request
+
 router.put('/update', auth.verifyUser, (req, res) => {
     const __id = req.body._id;
     const _username = req.body.username
