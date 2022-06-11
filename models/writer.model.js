@@ -61,14 +61,29 @@ var WriterSchema = new mongoose.Schema({
        default:"not updated"
 
     },
-    awards:{
+    awards:[{
+
         awardName: {
+
             type: String
+
         },
+
+        description:{
+
+            type:String
+
+        },
+
         date: {
-            type: Date
+
+            type: String
+
         }
-    },
+
+    }
+
+    ],
     publishedBook: [{ type: mongoose.Schema.ObjectId, ref: 'book' }],
     profileVisit:{
         type:Number,
