@@ -30,14 +30,14 @@ router.post("/writer-request", auth.verifyUser, upload.single('citizenship'), (r
         var name = req.body.name;
         const bookName = req.body.bookName;
         const bookPublisher = req.body.bookPublisher;
-        
+
 
         const writer = new WriterSchema({
             name: name,
             bookName: bookName,
             bookPublisher: bookPublisher,
             citizenship: citizenship,
-            requestedBy:userId
+            requestedBy: userId
 
         });
         writer.save().then(() => {
@@ -64,11 +64,11 @@ router.get("/", (req, res) => {
 });
 
 
-function isWriterApprove(user, approved){
+function isWriterApprove(user, approved) {
     UserSchema.updateOne({ _id: user }, {
         isWriter: approved
-        
-    }).then(()=>{
+
+    }).then(() => {
         return true
     })
 
@@ -87,7 +87,7 @@ router.put("/verify", auth.verifyAdmin, (req, res) => {
         isWriterApprove(user, approved)
 
         res.json({ "message": "Success!", status: true })
-       
+
     }).catch((e) => {
         res.json({ "message": "Went wrong!", status: false })
     })
@@ -100,35 +100,35 @@ router.get("/info", auth.verifyUser, (req, res) => {
     WriterSchema.findOne({
         requestedBy: req.userInfo._id
     }).then((docs) => {
-            // console.log('followers, following', docs.followers.length)
-            // console.log('here it is ', docs.profileVisit)
-            profileVisitInc(req.userInfo._id,docs.profileVisit);
+        // console.log('followers, following', docs.followers.length)
+        // console.log('here it is ', docs.profileVisit)
+        profileVisitInc(req.userInfo._id, docs.profileVisit);
 
-            res.json({ 'data': docs,  success: true })
+        res.json({ 'data': docs, success: true })
 
-        }).catch(e => {
-            res.json({ 'message': 'Error', success: false })
+    }).catch(e => {
+        res.json({ 'message': 'Error', success: false })
 
-        })
+    })
 })
 
-function profileVisitInc(uid,pv){
+function profileVisitInc(uid, pv) {
 
-    WriterSchema.updateOne({requestedBy:uid},{
-        profileVisit:pv+1
-    }).then(e=>{
+    WriterSchema.updateOne({ requestedBy: uid }, {
+        profileVisit: pv + 1
+    }).then(e => {
         return true
-    }).catch(e=>{
+    }).catch(e => {
         return false
     })
 
 }
 
-function profileSync(user, pp){
+function profileSync(user, pp) {
     UserSchema.updateOne({ _id: user }, {
         profilePic: pp
-        
-    }).then(()=>{
+
+    }).then(() => {
         return true
     })
 
@@ -145,9 +145,9 @@ router.put('/update', upload.single('profilePic'), auth.verifyUser, (req, res) =
         const education = req.body.education;
         const birthPlace = req.body.birthPlace;
         const dob = req.body.dob;
-        
 
-        WriterSchema.updateOne({ requestedBy: user }, { penname: penname, contact: contact, email: email, education:education, birthPlace:birthPlace, dob:dob }).then(result => {
+
+        WriterSchema.updateOne({ requestedBy: user }, { penname: penname, contact: contact, email: email, education: education, birthPlace: birthPlace, dob: dob }).then(result => {
             res.json({ "message": "Update Successful!", status: true })
         }).catch(e => {
 
@@ -163,9 +163,9 @@ router.put('/update', upload.single('profilePic'), auth.verifyUser, (req, res) =
         const birthPlace = req.body.birthPlace;
         const dob = req.body.dob;
         const profilePic = req.file.filename
-        WriterSchema.updateOne({ requestedBy: user }, { penname: penname, contact: contact, email: email, education:education, birthPlace:birthPlace, dob:dob, profilePic:profilePic }).then(result => {
+        WriterSchema.updateOne({ requestedBy: user }, { penname: penname, contact: contact, email: email, education: education, birthPlace: birthPlace, dob: dob, profilePic: profilePic }).then(result => {
             //    console.log("picuploaded")
-            profileSync(user,profilePic)
+            profileSync(user, profilePic)
             res.json({ "message": "Update Successful!", success: true })
         }).catch(e => {
             res.json({ "message": "Update error!", success: false })
@@ -173,6 +173,37 @@ router.put('/update', upload.single('profilePic'), auth.verifyUser, (req, res) =
 
     }
 
+
+})
+// posting comments
+
+router.post('/add-awards', auth.verifyUser, (req, res) => {
+
+    const award = { awardName: req.body.awardName, description: req.body.description, date: req.body.date };
+
+    console.log(award, req.body.awardName, req.body.description, req.body.date)
+
+    WriterSchema.findOneAndUpdate({ requestedBy: req.userInfo._id },
+
+        {
+
+            $push: { awards: award },
+
+        })
+
+        .then((docs) => {
+
+            res.json({ status: true })
+
+
+
+        }).catch(e => {
+
+            res.json({ message: e, success: false })
+
+
+
+        });
 
 })
 
