@@ -220,6 +220,85 @@ router.get("/releases", (req, res) => {
         })
 });
 
+// like release
+
+router.put('/release/like', auth.verifyUser, (req, res) => {
+
+
+
+    BookSchema.findByIdAndUpdate(
+
+        req.body.bookId,
+
+        {
+
+            $push: { Likes: req.userInfo._id },
+
+        },
+
+        { new: true }
+
+    )
+
+        .then((docs, err) => {
+
+            console.log('liked')
+
+            res.json({ message: 'Success', success: true, likecount: docs.Likes.length });
+
+        }).catch(e => {
+
+            res.json({ error: err, success: false });
+
+        });
+
+
+
+})
+
+
+
+
+// unlike release
+
+router.put('/release/unlike', auth.verifyUser, (req, res) => {
+
+
+
+    BookSchema.findByIdAndUpdate(
+
+        req.body.bookId,
+
+        {
+
+            $pull: { Likes: req.userInfo._id },
+
+        },
+
+        { new: true }
+
+    )
+
+
+
+        .then((docs, err) => {
+
+            console.log('unliked')
+
+
+
+            res.json({ message: 'Success', success: true, likecount: docs.Likes.length });
+
+        }).catch(err => {
+
+            res.json({ error: err, success: false });
+
+        });
+
+
+
+})
+
 
 
 
