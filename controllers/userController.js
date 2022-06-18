@@ -557,6 +557,38 @@ router.post("/unfollow", auth.verifyUser, (req, res) => {
 //    });
 
 
-
+// google sign in
+router.post("/google-signin",(req, res) => {
+    const email = req.body.email
+    UserSchema.findOne({ email: email }).then(
+        (data) => {
+            // if penname is present
+            console.log(data)
+            if (data === null) {
+                const user = new UserSchema({
+                    penname: req.body.email.split("@")[0],
+                    firstname: req.body.firstname,
+                    lastname: req.body.lastname,
+                    email: req.body.email,
+                    googleId: req.body.googleId,
+                    // profilePic: profile.picture,
+                    email_verified:true,
+                    password:"Nepal@123"
+                });
+                user.save().then(() => {
+                    console.log(user)
+                    const token = jwt.sign({ userID: user._id, isAdmin: user.isAdmin, isSuperUser: user.isSuperUser }, "anysecretkey");
+                res.json({ "message": "Login Success", 'token': token, status: true, 'penname': req.body.email.split("@")[0], 'isAdmin': false, 'isPublisher': false, 'uid': user._id, 'isWriter':false, 'pp': user.profilePic,  });
+                }).catch((err) => {
+                    res.send(err)
+                })
+            }
+                //else token generate
+                console.log("Login Success");
+                const token = jwt.sign({ userID: data._id, isAdmin: data.isAdmin, isSuperUser: data.isSuperUser }, "anysecretkey");
+                res.json({ "message": "Login Success", 'token': token, status: true, 'penname': data.penname, 'isAdmin': data.isAdmin, 'isPublisher': data.isPublisher, 'uid': data._id, 'isWriter':data.isWriter, 'pp': data.profilePic });
+        }
+    )
+});
 
 module.exports = router;

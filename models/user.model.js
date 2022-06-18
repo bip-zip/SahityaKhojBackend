@@ -88,7 +88,11 @@ var UserSchema = new mongoose.Schema({
     profileVisit:{
         type:Number,
         default:'1'
+    },
+    googleId:{
+        type: String
     }
+    
 });
 
 const User = mongoose.model("user", UserSchema);
