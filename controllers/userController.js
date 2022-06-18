@@ -6,37 +6,42 @@ const UserSchema = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const upload = require("../uploads/files")
 const auth = require("../middlewares/auth");
+const verificationSchema = require("../models/verification.model");
 
+
+const otpGenerator = require('otp-generator');
+
+// POST request (User Registration)
 // POST request (User Registration)
 router.post("/user/registration", (req, res) => {
     const penname = req.body.penname
-    UserSchema.findOne({
-        penname: penname
+    const email = req.body.email;
+    UserSchema.find({
+        $or: [
+            { 'penname': penname },
+            { 'email': email },
+          ]
     }).then((UserData) => {
-        if (UserData != null) {
-            res.json({ message: "Username already exist!", status: false })
+        console.log(UserData)
+        if (UserData != '') {
+            res.json({ message: "Username or email already exist!", status: false })
             return;
         }
         // password hash
         const password = req.body.password;
         bcryptjs.hash(password, 10, (err, hashed_pw) => {
-
             var firstname = req.body.firstname;
             var lastname = req.body.lastname;
-
             // if(firstname || lastname == undefined){
             //     firstname = 'Ghumfir'
             //     lastname = 'Yatri'
             // }
-            
             const address = req.body.address;
-            const email = req.body.email;
             const contact = '+977 ';
             // const joined = req.body.joined;
             const pp = 'pp.png';
             const cp = 'cp.jpg';
             const bio = 'Sahitya lai khojeko maile...';
-
             const user = new UserSchema({
                 penname: penname,
                 password: hashed_pw,
@@ -49,18 +54,16 @@ router.post("/user/registration", (req, res) => {
                 profilePic: pp,
                 coverPic: cp,
                 bio:bio
-
             });
             console.log(user, req.body)
             user.save().then(() => {
-                res.json({ message: 'Registration Complete!', status: true })
+                OTP(user._id, email);
+                res.json({ message: 'Verify your email to login.', status: true })
             }).catch((err) => {
                 res.json({ message: err, status: false })
             })
-
         })
     })
-
 })
 
 
@@ -111,6 +114,94 @@ router.get("/", (req, res) => {
         }
     })
 })
+// OTP Generator and sender
+
+function OTP (userId,email){
+
+    const myotp= otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false, lowerCaseAlphabets:false, digits:true });
+
+    console.log(myotp)
+
+                bcryptjs.hash(myotp, 10,  (e, hashedOTP) => {
+
+                    console.log("hashedotp----->", hashedOTP, e)
+
+                    const verificationTOk =  new verificationSchema({
+
+                        user: userId,
+
+                        token: hashedOTP
+
+                    })
+
+                     verificationTOk.save()
+
+                     console.log("token saveddddd")
+
+                })
+
+                console.log("token saveddddd")
+
+   
+
+                // mail().sendMail({
+
+                //     from: "herohiralaal14@gmail.com",
+
+                //     to: email,
+
+                //     subject: "Verify your email",
+
+                //     html: `<p style="text-align:center; font-size:16px;"> Your OTP: ${OTP}</p>`
+
+                // })
+
+            }
+// verify email otp
+router.post('/verifyemail', (req, res) => {
+    const email = req.body.email;
+    const otp = req.body.otp;
+    if (!email || !otp) {
+        res.json({message:"Invalid request", success:false})
+    } else {
+         UserSchema.findOne({'email':req.body.email}).then((docs)=>{
+            if (!docs) {
+                res.json({message:"User is not valid", success:false})
+            } else {
+                if (docs.email_verified) {
+                    res.json({message:"User is already verified", success:false})
+                } else {
+                    console.log(docs._id);
+                    verificationSchema.findOne({ 'user': docs._id }).then(async tdocs=>{
+                        console.log(tdocs,"yo token ho")
+                        if (!tdocs) {
+                            res.json({message:"token is not valid", success:false})
+                        } else {
+                            const isComptok =  await bcryptjs.compare(otp, tdocs.token)
+                            console.log(isComptok,"token milyo ki milena ta dosti")
+                            if (!isComptok) {
+                                res.json({message:"token not match", success:false})
+                            } else {
+                                docs.email_verified = true;
+                                 verificationSchema.findByIdAndRemove({ _id: tdocs._id}).then(()=>{
+                                    console.log("token deleted")
+                                 })
+                                 docs.save()
+                                // mail().sendMail({
+                                //     from: "herohiralaal14@gmail.com",
+                                //     to: user.email,
+                                //     subject: "Verify your email",
+                                //     html: `<p style="text-align:center; font-size:16px;"> Email verified successfully. Please Login </p>`
+                                // })
+                                res.json({ message: "email verified", success: true })
+                            }
+                        }
+                    })
+                }
+            }
+         })
+    }
+});
 
 
 
