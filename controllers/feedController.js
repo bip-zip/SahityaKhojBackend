@@ -272,14 +272,31 @@ router.get("/indblogs/:uid", auth.verifyUser, (req, res) => {
 
 
 
+// to  show single feed
 
+router.get("/feed/:feedId", (req, res) => {
 
+    const feedId = req.params.feedId;
 
+    FeedSchema.findById(feedId)
 
+        .populate("user", "_id penname firstname lastname profilePic isWriter isPublisher")
 
+        .populate("Comments.PostedBy", "_id penname firstname lastname profilePic" )
 
+        .sort([["Comments",1]])
 
+        .then(data => {
 
+            res.json({ data: data, status: true })
+
+        }).catch(e => {
+
+            res.json({ status: false })
+
+        })
+
+});
 
 
 
