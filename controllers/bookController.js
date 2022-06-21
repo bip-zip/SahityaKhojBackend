@@ -223,13 +223,8 @@ router.get("/releases", (req, res) => {
 // like release
 
 router.put('/release/like', auth.verifyUser, (req, res) => {
-
-
-
     BookSchema.findByIdAndUpdate(
-
         req.body.bookId,
-
         {
 
             $push: { Likes: req.userInfo._id },

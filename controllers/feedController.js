@@ -176,17 +176,8 @@ router.get("/blogdetail/:bid", (req, res) => {
 
 
 
-// blog delete
-router.delete("/delete/:bid", auth.verifyUser, (req, res) => {
-    BlogSchema.findByIdAndRemove(req.params.bid).then((blog) => {
-        console.log('Delete successss');
 
-        res.json({ success: true, message: "Delete successful" })
-    }).catch((err) => {
-        console.log(err.message);
-        res.json({ success: false, message: "Delete unsuccessful" })
-    })
-})
+
 
 // update blog
 router.put('/update', auth.verifyUser, upload.single('thumbnail'), (req, res) => {
@@ -373,6 +364,20 @@ router.get('/test', (req, res) => {
         .catch((err) => {
             console.log(err);
         });
+})
+
+
+
+// feed delete
+router.delete("/delete/:fid", auth.verifyUser, (req, res) => {
+    FeedSchema.findByIdAndRemove(req.params.fid).then((blog) => {
+        console.log('Delete successss');
+
+        res.json({ success: true, message: "Delete successful" })
+    }).catch((err) => {
+        console.log(err.message);
+        res.json({ success: false, message: "Delete unsuccessful" })
+    })
 })
 
 
