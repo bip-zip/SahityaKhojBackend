@@ -300,6 +300,25 @@ router.put('/release/unlike', auth.verifyUser, (req, res) => {
 })
 
 
+// book update
+router.put("/update-book", auth.verifyUser, (req, res) => {  
+    const bookId = req.body.bookid;
+    BookSchema.updateOne({_id:bookId},{
+        bookName:req.body.bookname
+
+    }).then((err) => {
+     
+        res.json({ "message": "Update Successful!", status: true })
+    }
+
+    ).catch((e) => {
+
+        res.json({ "message": "Went wrong!", status: false })
+    })
+
+
+})
+
 
 
 module.exports = router;
