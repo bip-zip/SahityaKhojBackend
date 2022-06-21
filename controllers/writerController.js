@@ -112,8 +112,25 @@ router.get("/info", auth.verifyUser, (req, res) => {
         })
 })
 
-function profileVisitInc(uid,pv){
+router.get("/information/:writerId", (req, res) => {
+    
+    WriterSchema.findOne({
+        requestedBy: req.params.writerId
+    }).then((docs) => {
+            // console.log('followers, following', docs.followers.length)
+            // console.log('here it is ', docs.profileVisit)
+            // profileVisitInc(req.userInfo._id,docs.profileVisit);
 
+            res.json({ 'data': docs,  success: true })
+
+        }).catch(e => {
+            res.json({ 'message': 'Error', success: false })
+
+        })
+})
+
+
+function profileVisitInc(uid,pv){
     WriterSchema.updateOne({requestedBy:uid},{
         profileVisit:pv+1
     }).then(e=>{
@@ -175,6 +192,47 @@ router.put('/update', upload.single('profilePic'), auth.verifyUser, (req, res) =
 
 
 })
+
+
+// add awards
+router.put('/update', auth.verifyUser, (req, res) => {
+
+        const user = req.userInfo._id;
+        const contact = req.body.contact;
+        const penname = req.body.penname;
+        const email = req.body.email;
+        const education = req.body.education;
+        const birthPlace = req.body.birthPlace;
+        const dob = req.body.dob;
+        const profilePic = req.file.filename
+        WriterSchema.updateOne({ requestedBy: user }, { penname: penname, contact: contact, email: email, education:education, birthPlace:birthPlace, dob:dob, profilePic:profilePic }).then(result => {
+            //    console.log("picuploaded")
+            profileSync(user,profilePic)
+            res.json({ "message": "Update Successful!", success: true })
+        }).catch(e => {
+            res.json({ "message": "Update error!", success: false })
+        })
+})
+
+// posting comments
+router.post('/add-awards', auth.verifyUser, (req, res) => {
+    const award = { awardName: req.body.awardName, description:req.body.description, date:req.body.date};
+    console.log(award, req.body.awardName, req.body.description, req.body.date)
+    WriterSchema.findOneAndUpdate({requestedBy:req.userInfo._id},
+        {
+            $push: { awards: award },
+        })
+        .then((docs) => {
+            res.json({ status: true })
+
+        }).catch(e => {
+            res.json({ message: e, success: false })
+
+        });
+})
+
+
+
 
 
 module.exports = router;

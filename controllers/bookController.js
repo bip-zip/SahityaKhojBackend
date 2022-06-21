@@ -220,6 +220,36 @@ router.get("/releases", (req, res) => {
         })
 });
 
+// to  show single release
+router.get("/release/:releaseId", (req, res) => {
+    const releaseID = req.params.releaseId;
+    console.log("Hit me ",releaseID)
+    BookSchema.find({_id:releaseID})
+    .populate("requestedBy", "_id penname firstname lastname profilePic isWriter isPublisher")
+    .populate("Comments.PostedBy", "_id penname firstname lastname profilePic isWriter isPublisher")
+    .then((docs) => {
+        let releases = [];
+        docs.map((item) => {
+            releases.push({
+                _id: item._id,
+                bookName: item.bookName,
+                bookWriter: item.bookWriter,
+                category: item.category,
+                date:item.createdDate,
+                releasingDate: item.releasingDate,
+                bookCover: item.bookCover,
+                Shares: item.Shares,
+                Likes: item.Likes,
+                Comments: item.Comments,
+                user:item.requestedBy
+            });
+        });
+            res.json({ 'data': releases, 'status': true })
+
+        }).catch(e => {
+            res.json({ status: false, msg:e })
+        })
+});
 
 
 
