@@ -332,5 +332,16 @@ router.post('/comment', auth.verifyUser, (req, res) => {
 
 })
 
+// book delete
+router.delete("/delete/:bookId", auth.verifyUser, (req, res) => {
+    BookSchema.findByIdAndRemove(req.params.bookId).then((book) => {
+        res.json({ success: true, message: "Delete successful" })
+    }).catch((err) => {
+        console.log(err.message);
+        res.json({ success: false, message: "Delete unsuccessful" })
+    })
+})
+
+
 
 module.exports = router;

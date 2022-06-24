@@ -368,18 +368,18 @@ router.get('/test', (req, res) => {
 
 
 
-// feed delete
-router.delete("/delete/:fid", auth.verifyUser, (req, res) => {
-    FeedSchema.findByIdAndRemove(req.params.fid).then((blog) => {
-        console.log('Delete successss');
 
+
+
+//  delete feed
+router.delete("/delete/:feedId", auth.verifyUser, (req, res) => {
+    FeedSchema.findByIdAndRemove(req.params.feedId).then((feed) => {
         res.json({ success: true, message: "Delete successful" })
     }).catch((err) => {
         console.log(err.message);
         res.json({ success: false, message: "Delete unsuccessful" })
     })
 })
-
 
 
 
