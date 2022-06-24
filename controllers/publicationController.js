@@ -146,5 +146,25 @@ router.put("/verify", auth.verifyAdmin, (req, res) => {
 
 })
 
+//verify get publications
 
+router.get("/verified", (req, res) => {
+
+    PublicationSchema.find({'verified':true})
+
+    .sort([['requestedDate', -1]])
+
+    .then((docs) => {
+
+        res.json({ 'data': docs, 'status': true })
+
+
+
+    }).catch(e => {
+
+        res.json({ 'msg': 'Error', 'status': false })
+
+    })
+
+});
 module.exports = router;

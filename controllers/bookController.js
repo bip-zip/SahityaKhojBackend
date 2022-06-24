@@ -299,24 +299,71 @@ router.put('/release/unlike', auth.verifyUser, (req, res) => {
 
 })
 
+// single book detail
 
-// book update
-router.put("/update-book", auth.verifyUser, (req, res) => {  
-    const bookId = req.body.bookid;
-    BookSchema.updateOne({_id:bookId},{
-        bookName:req.body.bookname
+router.get("/book/:bookId", (req, res) => {
 
-    }).then((err) => {
+    const bookId = req.params.bookId;
+
+    BookSchema.findById(bookId).then((docs) => {
+
+            res.json({ 'data': docs })
+
      
-        res.json({ "message": "Update Successful!", status: true })
-    }
 
-    ).catch((e) => {
+    }).catch(e => {
 
-        res.json({ "message": "Went wrong!", status: false })
+        res.json({ 'msg': 'Error', 'success': false })
+
     })
 
+});
 
+router.put("/update/:bookId", auth.verifyUser, upload.single('bookCover'), (req, res) => {
+    // uploading bookcover
+    // console.log(req.file.filename, req.params.bookId)
+    var bookcover = ''
+    const bookName = req.body.bookName;
+    const bookWriter = req.body.bookWriter;
+    const price = req.body.price;
+    const category = req.body.category;
+    const isbn = req.body.isbn;
+    const publishedDate = req.body.publishedDate;
+    const abstract = req.body.abstract;
+    const verifiedPublication = req.body.publication
+    if (req.file == undefined) {
+        BookSchema.updateOne({_id:req.params.bookId}, {
+            bookName: bookName,
+            bookWriter: bookWriter,
+            price: price,
+            category: category,
+            isbn: isbn,
+            publishedDate: publishedDate,
+            abstract: abstract,
+            verifiedPublication:verifiedPublication
+        }).then(err=>{
+            res.json({status:true, message:"Successful"})
+        }).catch(err=>{
+            res.json({"message":"Error", status:false})
+        })
+    } else {
+        bookcover = req.file.filename;
+        BookSchema.updateOne({_id:req.params.bookId},{
+            bookName: bookName,
+            bookWriter: bookWriter,
+            price: price,
+            category: category,
+            isbn: isbn,
+            publishedDate: publishedDate,
+            abstract: abstract,
+            bookCover:bookcover,
+            verifiedPublication:verifiedPublication
+        }).then(err=>{
+            res.json({status:true, message:"Successful"})
+        }).catch(err=>{
+            res.json({"message":"Error", status:false})
+        })
+    }
 })
 
 
