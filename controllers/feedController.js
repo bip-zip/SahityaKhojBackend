@@ -326,7 +326,25 @@ router.put('/edit-comment', auth.verifyUser, (req, res) => {
 
 
 
-
+// delete comment
+router.put('/delete-comment', auth.verifyUser, (req, res) => {
+    console.log("edittetdtetdtetdetd")
+    // const commentId = req.body.commentId
+    var commentId = req.body.commentId;
+    console.log(commentId)
+    // const comment = { Text: req.body.commentText };
+    FeedSchema.findById(
+        req.body.feedId)
+        .then((docs) => {
+            console.log(docs.Comments[req.body.cindex])
+            docs.Comments.pull(commentId)
+            docs.save();
+            console.log('Comment deleted')
+            res.json({ success: true })
+        }).catch(e => {
+            res.json({ message: e, success: false })
+        });
+})
 
 
 
