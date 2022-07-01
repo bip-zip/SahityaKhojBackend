@@ -41,7 +41,8 @@ app.use("/api/publications", PublicationController)
 app.use("/api/feeds", FeedController)
 app.use("/api/writers", WriterController)
 app.use("/api/ads", AdsController)
-app.use("/api/ratings", RatingController)
+
+
 
 // port config
 const port = 8080;
