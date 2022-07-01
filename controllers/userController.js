@@ -701,7 +701,86 @@ router.post("/unfollow", auth.verifyUser, (req, res) => {
 
 
 //    });
-
+// forget password
+// send password link
+router.post("/send-link", async (req, res) => {
+    try {
+        const email = req.body.email;
+        UserSchema.findOne({ email: email }).then(async (user) => {
+            // console.log(user._id, email)
+            if (user === null) {
+                res.json({ message: "Please, provide a valid email", status: false });
+            } else {
+                var token = await verificationSchema.find({ user: user._id }).exec();
+                console.log(token);
+                if (token == "") {
+                    token = new verificationSchema({
+                        user: user._id,
+                        token: otpGenerator.generate(32,{specialChars:false}),
+                    });
+                    token.save();
+                    const url = `http://localhost:3000/reset-password/${user._id}/${token.token}`;
+                    // sendEmail(user.email, "Password Reset", url);
+                    console.log(url);
+                    res.json({
+                        message: "Link has been sent to your mail",
+                        status: true,
+                    });
+                }
+              else{
+                res.json({
+                    message: "Link has been already sent to your mail",
+                    status: true,
+                });
+              }
+            }
+        });
+    } catch {
+        res.json({ message: "Error occured", status: false });
+    }
+});
+// verify password reset link
+router.get("/:id/:token", async (req, res) => {
+    try {
+        const user = await UserSchema.findOne({ _id: req.params.id });
+        if (!user) return res.status(400).send({ message: "Invalid link" });
+        const token = await verificationSchema.findOne({
+            user: user._id,
+            token: req.params.token,
+        });
+        if (!token) {
+            return res.status(400).send({ message: "Invalid link", status: false });
+        }
+        res.status(200).send({ message: "Valid url", status: true });
+    } catch (error) {
+        res.status(500).send({ message: "Internal Server Error", status: false });
+    }
+});
+//  set new password
+router.post("/reset-password/:id/:token", async (req, res) => {
+    try {
+        const user = await UserSchema.findOne({ _id: req.params.id });
+        if (!user) return res.status(400).send({ message: "Invalid link" });
+        const token = await verificationSchema.findOne({
+            user: user._id,
+            token: req.params.token,
+        });
+        if (!token) {
+            return res.json({ message: "Link is broken", status: false });
+        }
+        var password = req.body.password
+        bcryptjs.hash(password, 10, (err, hashed_pw) => {
+            UserSchema.findByIdAndUpdate(req.params.id,{password:hashed_pw}).then(e=>{
+                token.remove()
+                res.json({message:`Success. Login with your penname: ${user.penname}`, status:true})
+            }).catch(er=>{
+                res.json({message:err, status:false})
+            })
+        })
+    } catch (error) {
+        res.json({ message: "Internal Server Error", status:false });
+    }
+});
 
 
 
