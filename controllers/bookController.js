@@ -10,7 +10,30 @@ const RatingSchema = require("../models/rating.model");
 
 
 // get books
+router.get("/", (req, res) => {
+    BookSchema.find().sort([['createdDate', -1]]).then((docs) => {
+            res.json({ 'data': docs,'status': true  })
+     
+    }).catch(e => {
+        res.json({ 'msg': 'Error', 'status': false })
+    })
+});
 
+// search books
+router.get("/search/:query", (req, res) => {
+    const gquery = req.params.query
+    const regex = new RegExp(escapeRegex(gquery), 'gi');
+
+    BookSchema.find({$or:[{'bookName':regex}, {'category':regex},{'bookWriter':regex},{'publication':regex},{'isbn':regex} ], $and:[{approved:true}]},(err, docs) => {
+        console.log('these are the data',docs, req.params.query)
+       
+            res.json({ 'data': docs, success:true })
+        
+    // }).catch(e=>{
+    //     res.json({ 'message': 'Error', success:false, query:req.params.query })
+
+    })
+});
 
 // for search and Prevention for DDos Attack
 function escapeRegex(text) {
