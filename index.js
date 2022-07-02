@@ -7,6 +7,12 @@ const WriterController = require("./controllers/writerController")
 const AdsController = require("./controllers/adsController")
 const PublicationController = require("./controllers/publicationController")
 
+const BookReviewController = require("./controllers/bookreviewController")
+
+
+
+
+
 
 
 
@@ -40,7 +46,7 @@ app.use("/api/publications", PublicationController)
 app.use("/api/feeds", FeedController)
 app.use("/api/writers", WriterController)
 app.use("/api/ads", AdsController)
-
+app.use("/api/book-review", BookReviewController)
 
 
 // port config

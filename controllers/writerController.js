@@ -177,4 +177,29 @@ router.put('/update', upload.single('profilePic'), auth.verifyUser, (req, res) =
 })
 
 
+
+router.get("/trending",  (req, res) => {
+
+    console.log("I got it")
+
+    WriterSchema.find({"verified":true})
+
+    .sort({'profileVisit':-1})
+
+    .limit(9)
+
+    .then((docs) => {
+
+            res.json({ 'data': docs })
+
+    }).catch(e => {
+
+        res.json({ 'msg': 'Error', 'success': false })
+
+    })
+
+})
+
+
+
 module.exports = router;

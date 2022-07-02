@@ -259,4 +259,35 @@ router.post('/comment', auth.verifyUser, (req, res) => {
 })
 
 
+
+// single book detail
+
+router.get("/book/:bookId",  (req, res) => {
+
+    const bookId = req.params.bookId;
+
+    BookSchema.findById(bookId).then(async (docs) => {
+
+        docs.bookVisit += 1
+
+        docs.save()
+
+
+
+        
+       
+
+        res.json({ 'data': docs })
+
+     
+
+    }).catch(e => {
+
+        res.json({ 'msg': 'Error', 'success': false })
+
+    })
+
+});
+
+
 module.exports = router;
