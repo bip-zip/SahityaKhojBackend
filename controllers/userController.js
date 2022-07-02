@@ -6,6 +6,13 @@ const UserSchema = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const upload = require("../uploads/files")
 const auth = require("../middlewares/auth");
+const PublicationSchema = require("../models/publication.model");
+
+const WriterSchema = require("../models/writer.model");
+
+const BookSchema = require("../models/book.model");
+
+const AdsSchema = require("../models/ads.model");
 
 // POST request (User Registration)
 router.post("/user/registration", (req, res) => {
@@ -595,7 +602,33 @@ router.post("/unfollow", auth.verifyUser, (req, res) => {
 });
 
 
+// dashboard
 
+router.get("/admin-dashboard", auth.verifyAdmin, async(req,res)=>{
+
+    console.log("hitted")
+
+    const totaluser = await UserSchema.find().count().exec()
+
+    const totalad = await AdsSchema.find({approved:true}).count().exec()
+
+    const totalbook = await BookSchema.find({approved:true}).count().exec()
+
+    const totalwriter = await WriterSchema.find({ verified:true}).count().exec()
+
+    const totalpublication = await PublicationSchema.find({'verified':true}).count().exec()
+
+    console.log(totaluser)
+
+    res.json({totaluser:totaluser, totalwriter:totalwriter, totalpublication:totalpublication,totalbook:totalbook,totalad:totalad})
+
+
+
+
+
+   
+
+})
 
 
 
