@@ -8,7 +8,46 @@ var PublicationSchema = new mongoose.Schema({
         type: String,
 
     },
-    
+    user: {
+
+        type: mongoose.Schema.ObjectId,
+
+         ref: 'user'
+
+    },
+    awards:[{
+
+        awardName: {
+
+            type: String
+
+        },
+
+        description:{
+
+            type:String
+
+        },
+
+        date: {
+
+            type: String
+
+        }
+
+    }
+
+    ],
+
+    publishedBook: [{ type: mongoose.Schema.ObjectId, ref: 'book' }],
+
+    logo: {
+
+        type: String,
+
+        default:"plogo.png"
+
+    },
     verified:{
         type:Boolean,
         default:false
